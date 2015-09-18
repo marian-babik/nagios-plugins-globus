@@ -1,6 +1,6 @@
 PKGNAME=nagios-plugins-globus
 SPECFILE=${PKGNAME}.spec
-FILES=src/GRAM-probe src/GridFTP-probe src/GridProxy-probe src/MyProxy-probe src/refresh_proxy src/CertLifetime-probe
+FILES=Makefile ${SPECFILE} src/*
 
 PKGVERSION=$(shell grep -s '^Version:' $(SPECFILE) | sed -e 's/Version: *//')
 
