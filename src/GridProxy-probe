@@ -33,12 +33,13 @@
 use strict;
 use Nagios::Plugin;
 use GridMon::sgutils qw($VONAME &checkProxy &processCommand);
-use Sys::Syslog;
-use TOM::Nagios qw(nagios_debug);
+use GridMon::Nagios qw(nagios_debug);
+use No::Worries::Syslog qw(syslog_open);
 
-local $SIG{__DIE__}  = \&TOM::Nagios::handle_die;
-local $SIG{__WARN__} = \&TOM::Nagios::handle_warn;
-openlog("GridProxy-probe", "ndelay,pid", "user");
+$SIG{__WARN__} = \&No::Worries::Warn::handler;
+$SIG{__DIE__}  = \&No::Worries::Die::handler;
+
+syslog_open(ident => "GridProxy-probe", facility => "user");
 nagios_debug("started");
 
 # Standard variables used in Nagios::Plugin constructor
