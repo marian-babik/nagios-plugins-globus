@@ -1,17 +1,18 @@
-SPECFILE = nagios-plugins-globus.spec
-PROBES=src/GRAM-probe src/GridFTP-probe src/GridProxy-probe src/MyProxy-probe src/refresh_proxy src/CertLifetime-probe 
+PKGNAME=nagios-plugins-globus
+SPECFILE=${PKGNAME}.spec
+FILES=src/GRAM-probe src/GridFTP-probe src/GridProxy-probe src/MyProxy-probe src/refresh_proxy src/CertLifetime-probe
 
-PKGNAME = $(shell grep -s '^Name:'    $(SPECFILE) | sed -e 's/Name: *//')
-PKGVERS = $(shell grep -s '^Version:' $(SPECFILE) | sed -e 's/Version: *//')
+PKGVERSION=$(shell grep -s '^Version:' $(SPECFILE) | sed -e 's/Version: *//')
 
-distdir = dist/$(PKGNAME)-$(PKGVERS)
+dist:
+	rm -rf dist
+	mkdir -p dist/${PKGNAME}-${PKGVERSION}
+	cp -pr ${FILES} dist/${PKGNAME}-${PKGVERSION}/.
+	cd dist ; tar cfz ../${PKGNAME}-${PKGVERSION}.tar.gz ${PKGNAME}-${PKGVERSION}
+	rm -rf dist
 
-sources: dist $(SPECFILE)
-	cd dist && tar cvfz ../$(PKGNAME)-$(PKGVERS).tgz $(PKGNAME)-$(PKGVERS)/*
-
-dist: $(SPECFILE)
-	mkdir -p $(distdir)
-	cp -f $(PROBES) $(distdir)/
+sources: dist
 
 clean:
-	rm -rf dist $(PKGNAME)-$(PKGVERS).tgz
+	rm -rf ${PKGNAME}-${PKGVERSION}.tar.gz
+	rm -rf dist
