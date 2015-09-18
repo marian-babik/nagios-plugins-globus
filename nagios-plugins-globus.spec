@@ -3,10 +3,10 @@
 Summary: Nagios plugins for Globus Toolkit services
 Name: nagios-plugins-globus
 Version: 0.1.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: ASL 2.0
 Group: Network/Monitoring
-Source0: %{name}-%{version}.tgz
+Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
 Requires: perl-GridMon >= 1.0.28
