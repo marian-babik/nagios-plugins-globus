@@ -1,0 +1,144 @@
+#! /usr/bin/perl -w
+#
+# Probe for checking grid proxy certificate
+# Copyright (c) 2007 Emir Imamagic
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#
+# Changes and Modifications
+# =========================
+# 02-Apr-2007 - Created;
+#
+# 29-May-2007 - Updates related to WLCG specification changes
+#
+# 11-Jan-2008 - Added switching off alarm
+#
+# 15-Sep-2008 - changed sgutils namespace
+#
+# 16-Dec-2009 - 1.4 Migrated to Apache 2.0 license
+#
+# 23-Aug-2010 - Migrated to Nagios::Plugin.
+
+use strict;
+use Nagios::Plugin;
+use GridMon::sgutils qw($VONAME &checkProxy &processCommand);
+use Sys::Syslog;
+use TOM::Nagios qw(nagios_debug);
+
+local $SIG{__DIE__}  = \&TOM::Nagios::handle_die;
+local $SIG{__WARN__} = \&TOM::Nagios::handle_warn;
+openlog("GridProxy-probe", "ndelay,pid", "user");
+nagios_debug("started");
+
+# Standard variables used in Nagios::Plugin constructor
+use constant PROGNAME => "GridProxy-probe";
+use constant VERSION => '1.5';
+use constant DESCRIPTION => 'Probe for checking grid proxy certificate';
+use constant EXTRA_DESC => "";
+use constant LICENSE => 'This nagios plugin is free software, and comes with ABSOLUTELY NO WARRANTY.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+   http://www.apache.org/licenses/LICENSE-2.0
+Copyright 2009 Emir Imamagic';
+use constant SHORTNAME => 'GridProxy';
+use constant USAGE => "usage: $0 [ -v ] \n";
+
+sub processErrorOutput {
+	my $res = shift;
+
+    $res =~ s/^\s*\n//mg;
+    $res =~ s/\n//g;
+
+	return $res;
+}
+
+# Local variables
+my ($state,$answer,$res);
+my $cmd;
+
+# Create Nagios::Plugin instance
+my $plugin = Nagios::Plugin->new (usage => USAGE,
+                                  shortname => SHORTNAME,
+                                  version => VERSION,
+                                  blurb => DESCRIPTION,
+                                  extra => EXTRA_DESC,
+                                  license => LICENSE,
+                                  plugin  => PROGNAME);
+# Define additional arguments
+$plugin->add_arg(
+    spec => 'hostname|H=s',
+    help => "H|hostname\n   Name or IP address of host to check.",
+    required => 0,
+    default => 'localhost'
+);
+$plugin->add_arg(
+    spec => 'proxy|x=s',
+    help => "proxy|x\n   Location of Nagios user's proxy file.\n   (default: /tmp/x509up_u$<)",
+    required => 0,
+    default => "/tmp/x509up_u$<"
+);
+$plugin->add_arg(
+    spec => 'vo=s',
+    help => "vo\n   Virtual organization of user.\n   (default: )",
+    required => 0,
+);
+$plugin->add_arg(
+    spec => 'warning|w=i',
+    help => "w|warning\n   Warning threshold for proxy expiration (min).\n   (default: 60)",
+    required => 0,
+    default => 0
+);
+$plugin->add_arg(
+    spec => 'critical|c=i',
+    help => "c|critical\n   Critical threshold for proxy expiration (min).\n   (default: 45)",
+    required => 0,
+    default => 5
+);
+
+$plugin->getopts;
+
+$VONAME = $plugin->opts->vo if ($plugin->opts->vo);
+
+# Just in case of problems, let's not hang Nagios
+local $SIG{ALRM} = sub {
+    local $SIG{TERM} = 'IGNORE';
+    kill TERM => -$$;
+    $plugin->nagios_exit(CRITICAL, "Timeout occured during grid proxy checking.");
+};
+
+local $SIG{TERM} = sub {
+    local $SIG{TERM} = 'IGNORE';
+    kill TERM => -$$;
+    $plugin->nagios_die("Plugin received TERM signal.");
+};
+
+alarm($plugin->opts->timeout);
+
+($state,$answer,$res) = checkProxy($plugin->opts->proxy);
+if ( $state != OK) {
+    $plugin->nagios_exit(CRITICAL, $answer);
+}
+
+chop($answer);
+
+use GridMon::certutils qw(&checkCertLifetimeFile);
+
+my $tmpAnswer;
+($state,$tmpAnswer,$res) = checkCertLifetimeFile($plugin->opts->proxy, $plugin->opts->warning, $plugin->opts->critical);
+
+alarm(0);
+
+$answer .= " " . $tmpAnswer;
+$plugin->nagios_exit($state,$answer);
