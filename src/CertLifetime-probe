@@ -100,9 +100,9 @@ $plugin->add_arg(
 );
 $plugin->add_arg(
     spec => 'protocol=s',
-    help => "--protocol=ssl2|ssl3|tls1\n   Which protocol to use.\n   (default: ssl3)",
+    help => "--protocol=ssl2|ssl3|tls1\n   Which protocol to use.\n   (default: tls1)",
     required => 0,
-    default => 'ssl3'
+    default => 'tls1'
 );
 $plugin->add_arg(
     spec => 'capath=s',

@@ -2,8 +2,8 @@
 
 Summary: Nagios plugins for Globus Toolkit services
 Name: nagios-plugins-globus
-Version: 0.1.0
-Release: 2%{?dist}
+Version: 0.1.1
+Release: 1%{?dist}
 License: ASL 2.0
 Group: Network/Monitoring
 Source0: %{name}-%{version}.tar.gz
@@ -47,5 +47,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dir}/refresh_proxy
 
 %changelog
+* Thu Mar 24 2016 Emir Imamagic <eimamagi@srce.hr> - 0.1.1-1%{?dist}
+- Changed default protocol to tls1 in CertLifetime probe 
 * Fri Sep 18 2015 Emir Imamagic <eimamagi@srce.hr> - 0.1.0-1%{?dist}
 - Initial version of Globus probes for Nagios
