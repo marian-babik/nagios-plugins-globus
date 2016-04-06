@@ -2,7 +2,7 @@
 
 Summary: Nagios plugins for Globus Toolkit services
 Name: nagios-plugins-globus
-Version: 0.1.1
+Version: 0.1.2
 Release: 1%{?dist}
 License: ASL 2.0
 Group: Network/Monitoring
@@ -47,6 +47,8 @@ rm -rf $RPM_BUILD_ROOT
 %{dir}/refresh_proxy
 
 %changelog
+* Wed Apr 6 2016 Emir Imamagic <eimamagi@srce.hr> - 0.1.2-1%{?dist}
+- Modified MyProxy-probe not to enforce legacy proxy
 * Thu Mar 24 2016 Emir Imamagic <eimamagi@srce.hr> - 0.1.1-1%{?dist}
 - Changed default protocol to tls1 in CertLifetime probe 
 * Fri Sep 18 2015 Emir Imamagic <eimamagi@srce.hr> - 0.1.0-1%{?dist}

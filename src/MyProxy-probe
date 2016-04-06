@@ -407,7 +407,7 @@ alarm($plugin->opts->timeout);
 
 # gLite still uses old style proxy, see:
 # https://gus.fzk.de/pages/ticket_details.php?ticket=26846
-$ENV{'GT_PROXY_MODE'}="old";
+# $ENV{'GT_PROXY_MODE'}="old";
 
 ($state,$answer,$res) = checkProxy($plugin->opts->proxy);
 if ( $state != OK) {
