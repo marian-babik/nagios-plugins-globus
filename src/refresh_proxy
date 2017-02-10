@@ -379,7 +379,7 @@ if ($plugin->opts->get('robot-cert')) {
     my $robotKey = $plugin->opts->get('robot-key') || $robotCert;
     $ENV{X509_USER_CERT} = $robotCert;
     $ENV{X509_USER_KEY} = $robotKey;
-    $cmd = "$COMMANDS{VOMS_PROXY_INIT} -cert $robotCert -key $robotKey -out $tempProxy -voms $VONAME -noregen -valid $voProxyLifetime";
+    $cmd = "$COMMANDS{VOMS_PROXY_INIT} -rfc -cert $robotCert -key $robotKey -out $tempProxy -voms $VONAME -noregen -valid $voProxyLifetime";
 }
 else {
     $timeoutanswer = "Timeout occured during MyProxy operation.";
