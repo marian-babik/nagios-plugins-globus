@@ -379,7 +379,8 @@ if ($plugin->opts->get('robot-cert')) {
     my $robotKey = $plugin->opts->get('robot-key') || $robotCert;
     $ENV{X509_USER_CERT} = $robotCert;
     $ENV{X509_USER_KEY} = $robotKey;
-    $cmd = "$COMMANDS{VOMS_PROXY_INIT} -rfc -cert $robotCert -key $robotKey -out $tempProxy -voms $VONAME -noregen -valid $voProxyLifetime";
+    $cmd = "$COMMANDS{VOMS_PROXY_INIT} --rfc --out $tempProxy --voms $VONAME --valid $voProxyLifetime";
+    @type = ('--rfc', 'RFC');
 }
 else {
     $timeoutanswer = "Timeout occured during MyProxy operation.";
@@ -393,14 +394,14 @@ else {
 	printOutputClean ($state,$answer,$res, $tempProxy, $plugin);
     }
 
-    my $tmpType = `$COMMANDS{VOMS_PROXY_INFO} -file $tempProxy -type`;
-    @type = ($tmpType =~ /rfc/i) ? ('-rfc', 'RFC') : ('-old', 'legacy');
+    my $tmpType = `$COMMANDS{VOMS_PROXY_INFO} --file $tempProxy --type`;
+    @type = ($tmpType =~ /rfc/i) ? ('--rfc', 'RFC') : ('--old', 'legacy');
 
     # this is needed in case when user is root
     # otherwise voms-proxy-init doesn't work
     $ENV{X509_USER_CERT} = $tempProxy;
     $ENV{X509_USER_KEY} = $tempProxy;
-    $cmd = "$COMMANDS{VOMS_PROXY_INIT} -out $tempProxy -voms $VONAME -noregen -valid $voProxyLifetime $type[0]";
+    $cmd = "$COMMANDS{VOMS_PROXY_INIT} --out $tempProxy --voms $VONAME --noregen --valid $voProxyLifetime $type[0]";
 }
 
 $timeoutanswer = "Timeout occured during VOMS proxy init operation.";
