@@ -2,7 +2,7 @@
 
 Summary: Nagios plugins for Globus Toolkit services
 Name: nagios-plugins-globus
-Version: 0.1.4
+Version: 0.1.5
 Release: 1%{?dist}
 License: ASL 2.0
 Group: Network/Monitoring
@@ -45,6 +45,8 @@ rm -rf $RPM_BUILD_ROOT
 %{dir}/refresh_proxy
 
 %changelog
+* Thu May 4 2017 Emir Imamagic <eimamagi@srce.hr> - 0.1.5-1%{?dist}
+- Version bump.
 * Fri Feb 10 2017 Emir Imamagic <eimamagi@srce.hr> - 0.1.4-1%{?dist}
 - Robot-based proxy should be RFC
 * Fri Feb 10 2017 Emir Imamagic <eimamagi@srce.hr> - 0.1.3-1%{?dist}
