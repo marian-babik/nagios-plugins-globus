@@ -316,6 +316,17 @@ $plugin->add_arg(
     required => 0,
     default  => 12,
 );
+$plugin->add_arg(
+    spec => 'bits|b=s',
+    help => "Bits to use in voms-proxy-init.",
+    required => 0,
+    default => 2048
+);
+$plugin->add_arg(
+    spec => 'voms3',
+    help => "If set use voms-proxy-init3 (default: not set)",
+    required => 0,
+);
 
 
 $plugin->getopts;
@@ -343,6 +354,10 @@ $COMMANDS{MY_PROXY_LOGON}  = "$globusLocation/bin/myproxy-logon";
 $globusLocation = $ENV{GLITE_LOCATION} || "/usr";
 $COMMANDS{VOMS_PROXY_INIT} = "$globusLocation/bin/voms-proxy-init";
 $COMMANDS{VOMS_PROXY_INFO} = "$globusLocation/bin/voms-proxy-info";
+if ($plugin->opts->voms3) {
+    $COMMANDS{VOMS_PROXY_INIT} = "$globusLocation/bin/voms-proxy-init3";
+}
+
 
 # Just in case of problems, let's not hang Nagios
 local $SIG{ALRM} = sub {
@@ -396,12 +411,13 @@ else {
 
     my $tmpType = `$COMMANDS{VOMS_PROXY_INFO} --file $tempProxy --type`;
     @type = ($tmpType =~ /rfc/i) ? ('--rfc', 'RFC') : ('--old', 'legacy');
+    my $bits = $plugin->opts->get('bits');
 
     # this is needed in case when user is root
     # otherwise voms-proxy-init doesn't work
     $ENV{X509_USER_CERT} = $tempProxy;
     $ENV{X509_USER_KEY} = $tempProxy;
-    $cmd = "$COMMANDS{VOMS_PROXY_INIT} --out $tempProxy --voms $VONAME --noregen --valid $voProxyLifetime $type[0]";
+    $cmd = "$COMMANDS{VOMS_PROXY_INIT} -b $bits --out $tempProxy --voms $VONAME --noregen --valid $voProxyLifetime $type[0]";
 }
 
 $timeoutanswer = "Timeout occured during VOMS proxy init operation.";
